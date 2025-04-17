@@ -15,4 +15,4 @@ router.get('/:userId', getTransactionsByUser);
 // Matches POST /api/transactions/update/:id
 router.post('/update/:id', updateTransaction);
 
-module.exports = router;
+export default router;

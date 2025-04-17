@@ -4,5 +4,4 @@ const { getCategoriesByType } = require('../controllers/categoryController');
 
 // Matches GET /api/categories/:type
 router.get('/:type', getCategoriesByType);
-
-module.exports = router;
+export default router;
