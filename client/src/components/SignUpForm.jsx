@@ -1,138 +1,120 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
-function AddTransactionForm({ onSuccess, editingTransaction, onCancelEdit }) {
-    const isEditing = !!editingTransaction;
-    const [type, setType] = useState(editingTransaction?.type || 'income');
-    const [categoryId, setCategoryId] = useState(editingTransaction?.category_id || '');
-    const [amount, setAmount] = useState(editingTransaction?.amount || '');
-    const [description, setDescription] = useState(editingTransaction?.description || '');
-    const [date, setDate] = useState(editingTransaction?.date || '');
-    const [categories, setCategories] = useState([]);
+const SignUpForm = () => {
+    const navigate = useNavigate();
+    const [values, setValues] = useState({
+    name: '',
+    email: '',
+    password: ''
+    });
+    const [error, setError] = useState('');
 
-    const userId = localStorage.getItem('userId');
+    const handleChange = (e) => {
+        setValues(prev => ({
+        ...prev,
+        [e.target.name]: e.target.value
+    }));
+    };
 
-    useEffect(() => {
-    if (editingTransaction) {
-        setType(editingTransaction.type);
-        setCategoryId(editingTransaction.category_id);
-        setAmount(editingTransaction.amount);
-        setDescription(editingTransaction.description);
-        setDate(editingTransaction.date);
-    }
-    }, [editingTransaction]);
-
-    useEffect(() => {
-    axios
-        .get(`https://spendy-baot.onrender.com/categories/${type}`)
-        .then(res => setCategories(res.data))
-        .catch(err => console.log('Error fetching categories:', err));
-    }, [type]);
-
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
     e.preventDefault();
+    setError('');
 
-    const payload = {
-        userId,
-        categoryId,
-        type,
-        amount,
-        description,
-        date,
+    try {
+        const response = await axios.post(
+        'https://spendy-react.onrender.com/api/auth/signup',
+        values
+        );
+
+        if (response.data.success) {
+        navigate('/login');
+        } else {
+        setError(response.data.message || 'Signup failed');
+        }
+    } catch (err) {
+        setError('Something went wrong. Please try again.');
+        console.error(err);
+    }
     };
 
-    const endpoint = isEditing
-        ? `https://spendy-baot.onrender.com/update-transaction/${editingTransaction.id}`
-        : `https://spendy-baot.onrender.com/add-transaction`;
-
-    axios
-        .post(endpoint, payload)
-        .then(() => {
-        alert(isEditing ? 'Transaction updated!' : 'Transaction added!');
-        if (onSuccess) onSuccess();
-        if (onCancelEdit) onCancelEdit();
-        })
-        .catch(err => console.log('Error saving transaction:', err));
-    };
-    
     return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-        <div>
-        <label className="block text-sm font-medium">Type</label>
-        <select
-            value={type}
-            onChange={(e) => setType(e.target.value)}
-            className="w-full p-2 rounded text-white bg-gray-900"
-        >
-            <option value="income">Income</option>
-            <option value="expense">Expense</option>
-        </select>
+    <div className="flex min-h-screen items-center justify-center bg-white px-6 py-12">
+        <div className="w-full max-w-md space-y-8">
+        <div className="text-center">
+            <img src="/logo.svg" alt="Spendy" className="mx-auto h-20" />
+            <h2 className="mt-6 text-3xl font-bold tracking-tight text-gray-900">
+            Sign up for your account
+            </h2>
+            <p className="mt-2 text-sm text-gray-600">
+            Already a member?{' '}
+            <Link to="/login" className="text-indigo-600 hover:text-indigo-500 font-medium">
+                Sign in
+            </Link>
+            </p>
         </div>
 
-        <div>
-        <label className="block text-sm font-medium ">Category</label>
-        <select
-            value={categoryId}
-            onChange={(e) => setCategoryId(e.target.value)}
-            className="w-full p-3 rounded text-white bg-gray-900"
-        >
-            <option value="">Select category</option>
-            {categories.map(cat => (
-            <option key={cat.id} value={cat.id}>
-                {cat.name}
-            </option>
-            ))}
-        </select>
+        <form onSubmit={handleSubmit} className="mt-8 space-y-6">
+            {error && <p className="text-red-500 text-sm">{error}</p>}
+
+            <div className="space-y-4">
+            <div>
+                <label htmlFor="name" className="block text-sm font-medium text-gray-700">
+                Full Name
+                </label>
+                <input
+                id="name"
+                name="name"
+                type="text"
+                required
+                value={values.name}
+                onChange={handleChange}
+                className="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                />
+            </div>
+
+            <div>
+                <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+                Email Address
+                </label>
+                <input
+                id="email"
+                name="email"
+                type="email"
+                required
+                value={values.email}
+                onChange={handleChange}
+                className="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                />
+            </div>
+
+            <div>
+                <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+                Password
+                </label>
+                <input
+                id="password"
+                name="password"
+                type="password"
+                required
+                value={values.password}
+                onChange={handleChange}
+                className="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                />
+            </div>
+            </div>
+
+            <button
+            type="submit"
+            className="w-full mt-6 flex justify-center rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-500"
+            >
+            Sign Up
+            </button>
+        </form>
         </div>
-
-        <div>
-        <label className="block text-sm font-medium">Amount</label>
-        <input
-            type="number"
-            value={amount}
-            onChange={(e) => setAmount(e.target.value)}
-            className="w-full p-2 rounded text-white bg-gray-900"
-        />
-        </div>
-
-        <div>
-        <label className="block text-sm font-medium">Description</label>
-        <input
-            type="text"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            className="w-full p-2 rounded text-white bg-gray-900"
-        />
-        </div>
-
-        <div>
-        <label className="block text-sm font-medium">Date</label>
-        <input
-            type="date"
-            value={date}
-            onChange={(e) => setDate(e.target.value)}
-            className="w-full p-2 rounded text-white bg-gray-900"
-        />
-        </div>
-
-        <button
-        type="submit"
-        className="w-full bg-indigo-600 text-white p-2 rounded hover:bg-indigo-500 cursor-pointer"
-        >
-        {isEditing ? 'Update Transaction' : 'Add Transaction'}
-        </button>
-
-        {isEditing && (
-        <button
-            type="button"
-            onClick={onCancelEdit}
-            className="w-full mt-2 bg-red-600 text-white p-2 rounded hover:bg-red-500 cursor-pointer"
-        >
-            Cancel Edit
-        </button>
-        )}
-    </form>
+    </div>
     );
-}
+};
 
-export default AddTransactionForm;
+export default SignUpForm;
