@@ -43,7 +43,10 @@ const SignUpForm = () => {
     <div className="flex min-h-screen items-center justify-center bg-white px-6 py-12">
         <div className="w-full max-w-md space-y-8">
         <div className="text-center">
-            <img src="/logo.svg" alt="Spendy" className="mx-auto h-20" />
+            <img
+                src="/public/logo.svg" 
+                alt="Spendy" 
+                className="mx-auto h-20" />
             <h2 className="mt-6 text-3xl font-bold tracking-tight text-gray-900">
             Sign up for your account
             </h2>
