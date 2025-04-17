@@ -5,6 +5,7 @@ require("dotenv").config();
 
 const authRoutes = require("./routes/authRoutes");
 const transactionRoutes = require("./routes/transactionRoutes");
+const categoryRoutes = require('./routes/categoryRoutes');
 
 const app = express();
 const PORT = process.env.PORT;
@@ -14,6 +15,7 @@ app.use(express.json());
 
 app.use("/api/auth", authRoutes);
 app.use("/api/transactions", transactionRoutes);
+app.use(categoryRoutes);
 
 connectDB().then(() => {
     app.listen(PORT, () => {

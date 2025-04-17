@@ -1,35 +1,36 @@
-const User = require("../models/user");
+const User = require('../models/User');
 
-exports.signup = async (req, res) => {
+exports.register = async (req, res) => {
     try {
     const { name, email, password } = req.body;
 
-    const existing = await User.findOne({ email });
-    if (existing) return res.status(400).json({ message: "User already exists" });
+    const existingUser = await User.findOne({ email });
+    if (existingUser) return res.status(400).json({ error: 'User already exists' });
 
-    const newUser = await User.create({ name, email, password });
-    res.json({ status: "Success", user: newUser });
-    } catch (err) {
-    res.status(500).json({ status: "Error", error: err.message });
+    const user = await User.create({ name, email, password });
+
+    res.json({ status: 'Success', user });
+    } catch (error) {
+    res.status(500).json({ error: 'Registration failed' });
     }
 };
 
 exports.login = async (req, res) => {
     try {
-        const { email, password } = req.body;
-        const user = await User.findOne({ email, password });
+    const { email, password } = req.body;
 
-        if (!user) return res.json({ status: "Failed", message: "Invalid credentials" });
+    const user = await User.findOne({ email, password });
+    if (!user) return res.status(401).json({ status: 'Failed', error: 'Invalid credentials' });
 
     res.json({
-        status: "Success",
+        status: 'Success',
         user: {
-            id: user._id,
-            name: user.name,
-            email: user.email,
+        id: user._id,
+        name: user.name,
+        email: user.email,
         },
     });
-    } catch (err) {
-    res.status(500).json({ status: "Error", error: err.message });
+    } catch (error) {
+    res.status(500).json({ status: 'Error', error });
     }
 };
