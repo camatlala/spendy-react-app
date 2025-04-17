@@ -1,6 +1,6 @@
-const Transaction = require('../models/Transaction');
+import Transaction from '../models/Transaction';
 
-exports.addTransaction = async (req, res) => {
+export async function addTransaction(req, res) {
     try {
     const { userId, categoryId, type, amount, description, date } = req.body;
 
@@ -17,9 +17,9 @@ exports.addTransaction = async (req, res) => {
     } catch (error) {
     res.status(500).json({ status: 'Error', error });
     }
-};
+}
 
-exports.getTransactionsByUser = async (req, res) => {
+export async function getTransactionsByUser(req, res) {
     try {
     const userId = req.params.userId;
 
@@ -29,9 +29,9 @@ exports.getTransactionsByUser = async (req, res) => {
     } catch (error) {
     res.status(500).json({ error: 'Failed to fetch transactions' });
     }
-};
+}
 
-exports.updateTransaction = async (req, res) => {
+export async function updateTransaction(req, res) {
     try {
     const id = req.params.id;
 
@@ -41,4 +41,4 @@ exports.updateTransaction = async (req, res) => {
     } catch (error) {
     res.status(500).json({ status: 'Error', error });
     }
-};
+}

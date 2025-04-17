@@ -1,6 +1,6 @@
-const Category = require('../models/Category');
+import Category from '../models/Category';
 
-exports.getCategoriesByType = async (req, res) => {
+export async function getCategoriesByType(req, res) {
     try {
     const type = req.params.type;
     const categories = await Category.find({ type });
@@ -8,4 +8,4 @@ exports.getCategoriesByType = async (req, res) => {
     } catch (error) {
     res.status(500).json({ error: 'Failed to fetch categories' });
     }
-};
+}

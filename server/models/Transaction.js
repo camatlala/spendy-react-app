@@ -1,13 +1,13 @@
-const mongoose = require('mongoose');
+import { Schema, model } from 'mongoose';
 
-const transactionSchema = new mongoose.Schema({
+const transactionSchema = new Schema({
     user_id: {
-    type: mongoose.Schema.Types.ObjectId,
+    type: Schema.Types.ObjectId,
     ref: 'User',
     required: true,
     },
     category_id: {
-    type: mongoose.Schema.Types.ObjectId,
+    type: Schema.Types.ObjectId,
     ref: 'Category',
     required: true,
     },
@@ -27,4 +27,4 @@ const transactionSchema = new mongoose.Schema({
     },
 }, { timestamps: true });
 
-module.exports = mongoose.model('Transaction', transactionSchema);
+export default model('Transaction', transactionSchema);

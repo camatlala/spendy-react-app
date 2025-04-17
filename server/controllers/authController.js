@@ -1,6 +1,6 @@
-const User = require('../models/User');
+import User from '../models/User';
 
-exports.register = async (req, res) => {
+export async function register(req, res) {
     try {
     const { name, email, password } = req.body;
 
@@ -13,9 +13,9 @@ exports.register = async (req, res) => {
     } catch (error) {
     res.status(500).json({ error: 'Registration failed' });
     }
-};
+}
 
-exports.login = async (req, res) => {
+export async function login(req, res) {
     try {
     const { email, password } = req.body;
 
@@ -38,4 +38,4 @@ exports.login = async (req, res) => {
     res.status(500).json({ status: 'Error', error });
     }
     console.log("Attempted login with:", email, password);
-};
+}
