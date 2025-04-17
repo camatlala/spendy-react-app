@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { getCategoriesByType } = require('../controllers/categoryController');
 
-router.get('/:type', getCategoriesByType); // e.g. /api/categories/income
+// Matches GET /api/categories/:type
+router.get('/:type', getCategoriesByType);
 
 module.exports = router;
