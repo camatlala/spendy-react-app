@@ -29,10 +29,10 @@ const SignUpForm = () => {
         values
         );
 
-        if (response.data.success) {
-        navigate('/login');
+        if (response.data.status === 'Success') {
+            navigate('/login');
         } else {
-        setError(response.data.message || 'Signup failed');
+            setError(response.data.message || 'Signup failed');
         }
     } catch (err) {
         setError('Something went wrong. Please try again.');
@@ -47,7 +47,7 @@ const SignUpForm = () => {
             <img
                 src={assets.Spendy} 
                 alt="Spendy" 
-                className="mmx-auto h-60 w-auto bg-white" />
+                className="mmx-auto h-60 w-auto bg-white justify-center" />
             <h2 className="mt-6 text-3xl font-bold tracking-tight text-gray-900">
             Sign up for your account
             </h2>
@@ -74,7 +74,7 @@ const SignUpForm = () => {
                 required
                 value={values.name}
                 onChange={handleChange}
-                className="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:outline-indigo-600 sm:text-sm "
                 />
             </div>
 
@@ -104,7 +104,7 @@ const SignUpForm = () => {
                 required
                 value={values.password}
                 onChange={handleChange}
-                className="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:outline-indigo-600 sm:text-sm"
                 />
             </div>
             </div>
