@@ -12,7 +12,7 @@ export default function Dashboard() {
   const userId = localStorage.getItem('userId');
 
   const fetchTransactions = () => {
-    axios.get(`https://spendy-baot.onrender.com/transactions/${userId}`)
+    axios.get(`https://spendy-baot.onrender.com/api/auth/transactions/${userId}`)
       .then(res => setTransactions(res.data))
       .catch(err => console.error("Error fetching transactions:", err));
   };

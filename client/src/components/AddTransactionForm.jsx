@@ -24,7 +24,7 @@ function AddTransactionForm({ onSuccess, editingTransaction, onCancelEdit }) {
 
     useEffect(() => {
     axios
-        .get(`https://spendy-baot.onrender.com/categories/${type}`)
+        .get(`https://spendy-baot.onrender.com/api/auth/categories/${type}`)
         .then(res => setCategories(res.data))
         .catch(err => console.log('Error fetching categories:', err));
     }, [type]);
