@@ -1,8 +1,8 @@
-import mongoose from 'mongoose'
+import mongoose from "mongoose";
 
-const categorySchema = new mongoose.Schema({
+const CategorySchema = new mongoose.Schema({
   name: String,
-  type: String, // 'income' or 'expense'
+  type: String
 });
 
-export default mongoose.model('Category', categorySchema);
+export default mongoose.model("Category", CategorySchema);

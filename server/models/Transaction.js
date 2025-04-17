@@ -1,18 +1,12 @@
-import mongoose from 'mongoose'
+import mongoose from "mongoose";
 
-const transactionSchema = new mongoose.Schema({
-    user_id: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-    },
-    category_id: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Category',
-    },
-  type: String, // 'income' or 'expense'
-    amount: Number,
-    description: String,
-    date: String,
+const TransactionSchema = new mongoose.Schema({
+  user_id: String,
+  category_id: String,
+  type: String,
+  amount: Number,
+  description: String,
+  date: String
 });
 
-export default mongoose.model('Transaction', transactionSchema);
+export default mongoose.model("Transaction", TransactionSchema);

@@ -1,35 +1,38 @@
-import mongoose from 'mongoose'
-import Transaction from '../models/Transaction.js';
+import Transaction from "../models/Transaction.js";
 
-exports.addTransaction = async (req, res) => {
-    try {
+export const addTransaction = async (req, res) => {
+  try {
     const { userId, categoryId, type, amount, description, date } = req.body;
-
     await Transaction.create({
-        user_id: new mongoose.Types.ObjectId(userId),
-        category_id: new mongoose.Types.ObjectId(categoryId),
-        type,
-        amount: parseFloat(amount),
-        description,
-        date,
+      user_id: String(userId),
+      category_id: String(categoryId),
+      type,
+      amount: parseFloat(amount),
+      description,
+      date
     });
-
-    res.json({ status: 'Success' });
-    } catch (error) {
-    res.status(500).json({ status: 'Error', error });
-    }
+    res.json({ status: "Success" });
+  } catch (error) {
+    res.status(500).json({ status: "Error", error });
+  }
 };
 
-exports.getTransactionsByUser = async (req, res) => {
-    try {
-        const userId = req.params.userId;
-        
-        const transactions = await Transaction.find({ user_id: userId })
-        .populate('category_id') // to include category name/type in response
-        .exec();
+export const getTransactionsByUser = async (req, res) => {
+  try {
+    const userId = req.params.userId;
+    const transactions = await Transaction.find({ user_id: userId });
+    res.json(transactions);
+  } catch (error) {
+    res.status(500).json({ error: "Failed to fetch transactions" });
+  }
+};
 
-        res.json(transactions);
-    } catch (error) {
-        res.status(500).json({ error: 'Failed to fetch transactions' });
-    }
-    };
+export const updateTransaction = async (req, res) => {
+  try {
+    const id = req.params.id;
+    await Transaction.findByIdAndUpdate(id, req.body);
+    res.json({ status: "Success" });
+  } catch (error) {
+    res.status(500).json({ status: "Error", error });
+  }
+};
