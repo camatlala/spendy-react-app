@@ -1,5 +1,5 @@
-const mongoose = require('mongoose');
-const Transaction = require('../models/Transaction');
+import mongoose from 'mongoose'
+import Transaction from '../models/Transaction.js';
 
 exports.addTransaction = async (req, res) => {
     try {

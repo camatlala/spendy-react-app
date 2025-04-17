@@ -1,4 +1,4 @@
-const Category = require('../models/Category');
+import Category from '../models/Category.js'; 
 
 exports.getCategoriesByType = async (req, res) => {
     try {

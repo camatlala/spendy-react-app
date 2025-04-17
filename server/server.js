@@ -1,27 +1,29 @@
-const express = require("express");
-const cors = require("cors");
-const connectDB = require("./config/db");
-require("dotenv").config();
+import express from 'express';
+import cors from 'cors';
+import dotenv from 'dotenv';
+import connectDB from './config/db.js';
 
-const authRoutes = require("./routes/authRoutes");
-const transactionRoutes = require("./routes/transactionRoutes");
-const categoryRoutes = require('./routes/categoryRoutes');
+import authRoutes from './routes/authRoutes.js';
+import transactionRoutes from './routes/transactionRoutes.js';
+import categoryRoutes from './routes/categoryRoutes.js';
+
+dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT;
+const PORT = process.env.PORT || 8081;
 
 app.use(cors({
-  origin: 'https://spendy-react.netlify.app', // Or use "*" for development
+  origin: 'https://spendy-react.netlify.app',
 }));
 
 app.use(express.json());
 
-app.use("/api/auth", authRoutes);
-app.use("/api/transactions", transactionRoutes);
+app.use('/api/auth', authRoutes);
+app.use('/api/transactions', transactionRoutes);
 app.use('/api/categories', categoryRoutes);
 
 connectDB().then(() => {
-    app.listen(PORT, () => {
+  app.listen(PORT, () => {
     console.log(`🚀 Server running on port ${PORT}`);
-    });
+  });
 });
