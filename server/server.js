@@ -11,7 +11,8 @@ const app = express();
 const PORT = process.env.PORT;
 
 app.use(cors({
-    origin: 'https://spendy-react.netlify.app', // ✅ your Netlify frontend domain
+    origin: ['https://spendy-react.netlify.app', // ✅ your Netlify frontend domain
+    'http://localhost:5173'],
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     credentials: true
 }));
