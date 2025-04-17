@@ -24,7 +24,7 @@ const SignUpForm = () => {
 
     try {
         const response = await axios.post(
-        'https://spendy-react.onrender.com/api/auth/signup',
+        'https://spendy-baot.onrender.com/signup',
         values
         );
 

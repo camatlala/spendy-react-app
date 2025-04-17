@@ -22,7 +22,7 @@ function LoginForm() {
       setErrors(validationErrors);
     
       if (!validationErrors.email && !validationErrors.password) {
-        axios.post('hhttps://spendy-baot.onrender.com/login', values)
+        axios.post('https://spendy-baot.onrender.com/login', values)
           .then(res => {
             if (res.data.status === "Success") {
               localStorage.setItem("userId", res.data.user.id); // ✅ SET IT HERE ONLY
