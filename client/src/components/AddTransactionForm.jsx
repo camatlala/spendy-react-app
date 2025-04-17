@@ -3,6 +3,7 @@ import axios from 'axios';
 
 function AddTransactionForm({ onSuccess, editingTransaction, onCancelEdit }) {
     const isEditing = !!editingTransaction;
+
     const [type, setType] = useState(editingTransaction?.type || 'income');
     const [categoryId, setCategoryId] = useState(editingTransaction?.category_id || '');
     const [amount, setAmount] = useState(editingTransaction?.amount || '');
@@ -36,14 +37,14 @@ function AddTransactionForm({ onSuccess, editingTransaction, onCancelEdit }) {
         userId,
         categoryId,
         type,
-        amount,
+        amount: parseFloat(amount),
         description,
         date,
     };
 
     const endpoint = isEditing
-        ? `https://spendy-baot.onrender.com/api/transactions/update/${editingTransaction.id}`
-        : `https://spendy-baot.onrender.com/api/transactions/add`;
+        ? `https://spendy-baot.onrender.com/api/transactions/update/${editingTransaction._id}`
+        : `https://spendy-baot.onrender.com/api/transactions`;
 
     axios
         .post(endpoint, payload)
@@ -54,10 +55,10 @@ function AddTransactionForm({ onSuccess, editingTransaction, onCancelEdit }) {
         })
         .catch(err => console.log('Error saving transaction:', err));
     };
-    
+
     return (
     <form onSubmit={handleSubmit} className="space-y-6">
-        <div>
+    <div>
         <label className="block text-sm font-medium">Type</label>
         <select
             value={type}
@@ -67,25 +68,25 @@ function AddTransactionForm({ onSuccess, editingTransaction, onCancelEdit }) {
             <option value="income">Income</option>
             <option value="expense">Expense</option>
         </select>
-        </div>
+    </div>
 
-        <div>
-        <label className="block text-sm font-medium ">Category</label>
+    <div>
+        <label className="block text-sm font-medium">Category</label>
         <select
             value={categoryId}
             onChange={(e) => setCategoryId(e.target.value)}
             className="w-full p-3 rounded text-white bg-gray-900"
         >
-            <option value="">Select category</option>
+        <option value="">Select category</option>
             {categories.map(cat => (
-            <option key={cat.id} value={cat.id}>
+            <option key={cat._id} value={cat._id}>
                 {cat.name}
             </option>
             ))}
         </select>
-        </div>
+    </div>
 
-        <div>
+    <div>
         <label className="block text-sm font-medium">Amount</label>
         <input
             type="number"

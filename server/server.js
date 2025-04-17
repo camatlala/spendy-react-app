@@ -10,11 +10,11 @@ const categoryRoutes = require('./routes/categoryRoutes');
 const app = express();
 const PORT = process.env.PORT;
 
+const cors = require('cors');
 app.use(cors({
-    origin: 'https://spendy-react.netlify.app/',
-    methods: ['GET', 'POST', 'PUT', 'DELETE'],
-    credentials: true
+  origin: 'https://spendy-react.netlify.app', // or use "*" during dev
 }));
+
 app.use(express.json());
 
 app.use("/api/auth", authRoutes);

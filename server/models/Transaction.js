@@ -1,30 +1,18 @@
-import { Schema, model } from 'mongoose';
+const mongoose = require('mongoose');
 
-const transactionSchema = new Schema({
+const transactionSchema = new mongoose.Schema({
     user_id: {
-    type: Schema.Types.ObjectId,
+    type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
-    required: true,
     },
     category_id: {
-    type: Schema.Types.ObjectId,
+    type: mongoose.Schema.Types.ObjectId,
     ref: 'Category',
-    required: true,
     },
-    type: {
-    type: String,
-    enum: ['income', 'expense'],
-    required: true,
-    },
-    amount: {
-    type: Number,
-    required: true,
-    },
+  type: String, // 'income' or 'expense'
+    amount: Number,
     description: String,
-    date: {
-    type: String,
-    required: true,
-    },
-}, { timestamps: true });
+    date: String,
+});
 
-export default model('Transaction', transactionSchema);
+module.exports = mongoose.model('Transaction', transactionSchema);
