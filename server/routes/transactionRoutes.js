@@ -1,10 +1,11 @@
-const express = require('express');
-const router = express.Router();
-const {
+import express from 'express';
+import {
     addTransaction,
     getTransactionsByUser,
-    updateTransaction
-} = require('../controllers/transactionController');
+    updateTransaction,
+} from '../controllers/transactionController.js';
+
+const router = express.Router();
 
 // Matches POST /api/transactions
 router.post('/', addTransaction);

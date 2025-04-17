@@ -1,7 +1,9 @@
-const express = require('express');
+import express from 'express';
+import { getCategoriesByType } from '../controllers/categoryController.js';
+
 const router = express.Router();
-const { getCategoriesByType } = require('../controllers/categoryController');
 
 // Matches GET /api/categories/:type
 router.get('/:type', getCategoriesByType);
+
 export default router;
