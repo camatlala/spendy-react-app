@@ -19,7 +19,7 @@ app.use(express.json());
 
 app.use("/api/auth", authRoutes);
 app.use("/api/transactions", transactionRoutes);
-app.use(categoryRoutes);
+app.use('/api/categories', categoryRoutes);
 
 connectDB().then(() => {
     app.listen(PORT, () => {
