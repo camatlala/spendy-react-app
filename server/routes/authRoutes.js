@@ -1,4 +1,3 @@
-import router from 'express.Router';
 import express from 'express';
 import { register, login } from '../controllers/authController.js';
 
