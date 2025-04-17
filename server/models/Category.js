@@ -5,4 +5,4 @@ const categorySchema = new mongoose.Schema({
   type: String, // 'income' or 'expense'
 });
 
-module.exports = mongoose.model('Category', categorySchema);
+export default mongoose.model('Category', categorySchema);
