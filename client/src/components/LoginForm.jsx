@@ -49,7 +49,7 @@ function LoginForm() {
         </Link>
         <img
           alt="Spendy"
-          src="/public/Spendy.svg "
+          src="/dist/spendy.svg "
           class="mx-auto h-60 w-auto bg-white"
         />
         <h2 className="mt-10 text-center text-2xl leading-9 font-bold tracking-tight text-gray-800">
