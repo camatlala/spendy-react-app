@@ -24,7 +24,7 @@ function AddTransactionForm({ onSuccess, editingTransaction, onCancelEdit }) {
 
     useEffect(() => {
     axios
-        .get(`https://spendy-baot.onrender.com/api/auth/categories/${type}`)
+        .get(`https://spendy-baot.onrender.com/api/categories/${type}`)
         .then(res => setCategories(res.data))
         .catch(err => console.log('Error fetching categories:', err));
     }, [type]);
@@ -42,8 +42,8 @@ function AddTransactionForm({ onSuccess, editingTransaction, onCancelEdit }) {
     };
 
     const endpoint = isEditing
-        ? `https://spendy-baot.onrender.com/update-transaction/${editingTransaction.id}`
-        : `https://spendy-baot.onrender.com/add-transaction`;
+        ? `https://spendy-baot.onrender.com/api/transactions/update/${editingTransaction.id}`
+        : `https://spendy-baot.onrender.com/api/transactions/add`;
 
     axios
         .post(endpoint, payload)
