@@ -1,5 +1,6 @@
 import React from 'react';
-import { Link } from 'react-router-dom'
+import { Link } from 'react-router-dom';
+import assets from '../assets/assets';
 
 const HomePage = () => {
   return (
@@ -12,7 +13,7 @@ const HomePage = () => {
         muted
         playsInline
       >
-        <source src="/dist/bg-video.mp4" type="video/mp4" />
+        <source src={assets.bgVideo} type="video/mp4" />
         Your browser does not support the video tag.
       </video>
 

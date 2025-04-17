@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import Validation from './LoginValidation'
 import axios from 'axios'
+import assets from '../assets/assets'
 
 function LoginForm() {
     const [values, SetValues] = useState({
@@ -49,7 +50,7 @@ function LoginForm() {
         </Link>
         <img
           alt="Spendy"
-          src="/dist/spendy.svg "
+          src={assets.Spendy}
           class="mx-auto h-60 w-auto bg-white"
         />
         <h2 className="mt-10 text-center text-2xl leading-9 font-bold tracking-tight text-gray-800">

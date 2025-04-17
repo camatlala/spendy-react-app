@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import assets from '../assets/assets';
 
 const SignUpForm = () => {
     const navigate = useNavigate();
@@ -44,7 +45,7 @@ const SignUpForm = () => {
         <div className="w-full max-w-md space-y-8">
         <div className="text-center">
             <img
-                src="/dist/spendy.svg" 
+                src={assets.Spendy} 
                 alt="Spendy" 
                 className="mx-auto h-20" />
             <h2 className="mt-6 text-3xl font-bold tracking-tight text-gray-900">
