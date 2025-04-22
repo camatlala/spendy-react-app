@@ -26,7 +26,7 @@ ChartJS.register(
 );
 
 function TransactionChart({ transactions }) {
-  // 🌐 Categorize totals
+  // --- 🧮 Categorize transactions ---
   const incomeCategories = {};
   const expenseCategories = {};
   let totalIncome = 0;
@@ -45,34 +45,28 @@ function TransactionChart({ transactions }) {
     }
   });
 
-  // 🍩 Nested Pie Chart Data
+  // --- 🥧 Pie Chart (Nested Doughnut) ---
   const pieData = {
-    labels: [
-      ...Object.keys(incomeCategories).map(cat => `Income: ${cat}`),
-      ...Object.keys(expenseCategories).map(cat => `Expense: ${cat}`)
-    ],
+    labels: ['Income', 'Expense'],
     datasets: [
       {
-        // Inner ring: Income vs Expense
-        label: 'Total Breakdown',
+        // INNER RING
+        label: 'Totals',
         data: [totalIncome, totalExpense],
         backgroundColor: ['#10b981', '#ef4444'],
         borderWidth: 1,
         weight: 1,
       },
       {
-        // Outer ring: Categories
-        label: 'Categories',
-        data: [
-          ...Object.values(incomeCategories),
-          ...Object.values(expenseCategories),
-        ],
+        // OUTER RING
+        label: 'Category Breakdown',
+        data: [...Object.values(incomeCategories), ...Object.values(expenseCategories)],
         backgroundColor: [
           ...Object.keys(incomeCategories).map(() => '#34d399'),
           ...Object.keys(expenseCategories).map(() => '#f87171'),
         ],
         borderWidth: 1,
-        weight: 2,
+        weight: 0.8,
       },
     ],
   };
@@ -85,28 +79,24 @@ function TransactionChart({ transactions }) {
         position: 'bottom',
         labels: {
           color: 'white',
-          font: { size: 14 },
           usePointStyle: true,
           boxWidth: 10,
+          font: { size: 14 },
         },
       },
       tooltip: {
         callbacks: {
-          label: function (context) {
-            const value = context.parsed;
-            return `${context.label}: R${value.toLocaleString()}`;
+          label: (context) => {
+            const label = context.label || '';
+            const value = context.raw || 0;
+            return `${label}: R${value.toLocaleString()}`;
           },
         },
-        titleColor: 'white',
-        bodyColor: 'white',
-        backgroundColor: '#1f2937',
-        titleFont: { size: 16 },
-        bodyFont: { size: 14 },
       },
     },
   };
 
-  // 📈 Line Chart Data
+  // --- 📈 Line Chart Data ---
   const dates = [...new Set(transactions.map(t => new Date(t.date).toISOString().split('T')[0]))].sort();
 
   const incomeData = dates.map(date =>
@@ -121,7 +111,10 @@ function TransactionChart({ transactions }) {
       .reduce((sum, t) => sum + parseFloat(t.amount || 0), 0)
   );
 
-  const balanceData = incomeData.map((inc, idx) => inc - expenseData[idx]);
+  const balanceData = incomeData.map((inc, idx) => {
+    const prevBalance = idx > 0 ? balanceData[idx - 1] : 0;
+    return prevBalance + inc - expenseData[idx];
+  });
 
   const lineData = {
     labels: dates,
@@ -164,24 +157,30 @@ function TransactionChart({ transactions }) {
     },
     scales: {
       x: {
-        ticks: { color: 'white' },
-        grid: { color: '#374151' },
+        ticks: {
+          color: 'white',
+        },
+        grid: {
+          color: '#374151',
+        },
       },
       y: {
-        ticks: { color: 'white' },
-        grid: { color: '#374151' },
+        ticks: {
+          color: 'white',
+        },
+        grid: {
+          color: '#374151',
+        },
       },
     },
   };
 
+  // --- JSX Output ---
   return (
     <div className="flex flex-col lg:flex-row gap-10 justify-center items-start">
-      {/* Pie Chart */}
       <div className="w-full max-w-[500px] h-[400px]">
         <Pie data={pieData} options={pieOptions} />
       </div>
-
-      {/* Line Chart */}
       <div className="w-full max-w-[800px] h-[400px]">
         <Line data={lineData} options={lineOptions} />
       </div>
