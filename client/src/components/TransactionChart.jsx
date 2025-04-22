@@ -26,6 +26,10 @@ ChartJS.register(
 );
 
 function TransactionChart({ transactions }) {
+  if (!Array.isArray(transactions) || transactions.length === 0) {
+    return <div className="text-white text-center w-full">No data to display</div>;
+  }
+
   // --- 🧮 Categorize transactions ---
   const incomeCategories = {};
   const expenseCategories = {};
@@ -50,7 +54,7 @@ function TransactionChart({ transactions }) {
     labels: ['Income', 'Expense'],
     datasets: [
       {
-        // INNER RING
+        // Inner ring – Total Income vs Expense
         label: 'Totals',
         data: [totalIncome, totalExpense],
         backgroundColor: ['#10b981', '#ef4444'],
@@ -58,7 +62,7 @@ function TransactionChart({ transactions }) {
         weight: 1,
       },
       {
-        // OUTER RING
+        // Outer ring – Category Breakdown
         label: 'Category Breakdown',
         data: [...Object.values(incomeCategories), ...Object.values(expenseCategories)],
         backgroundColor: [
@@ -112,12 +116,12 @@ function TransactionChart({ transactions }) {
   );
 
   const balanceData = [];
-    for (let i = 0; i < dates.length; i++) {
-      const income = incomeData[i] || 0;
-      const expense = expenseData[i] || 0;
-      const prev = i === 0 ? 0 : balanceData[i - 1];
-  balanceData[i] = prev + income - expense;
-}
+  for (let i = 0; i < dates.length; i++) {
+    const income = incomeData[i] || 0;
+    const expense = expenseData[i] || 0;
+    const prev = i === 0 ? 0 : balanceData[i - 1];
+    balanceData[i] = prev + income - expense;
+  }
 
   const lineData = {
     labels: dates,
@@ -178,7 +182,7 @@ function TransactionChart({ transactions }) {
     },
   };
 
-  // --- JSX Output ---
+  // --- JSX ---
   return (
     <div className="flex flex-col lg:flex-row gap-10 justify-center items-start">
       <div className="w-full max-w-[500px] h-[400px]">
