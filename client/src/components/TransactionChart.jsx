@@ -26,7 +26,7 @@ ChartJS.register(
 );
 
 function TransactionChart({ transactions }) {
-  // 🥧 Pie chart: Prepare data
+  // 🌐 Categorize totals
   const incomeCategories = {};
   const expenseCategories = {};
   let totalIncome = 0;
@@ -45,64 +45,68 @@ function TransactionChart({ transactions }) {
     }
   });
 
-  const outerLabels = [...Object.keys(incomeCategories), ...Object.keys(expenseCategories)];
-  const outerData = [...Object.values(incomeCategories), ...Object.values(expenseCategories)];
-  const outerColors = [
-    ...Object.keys(incomeCategories).map(() => '#10b981'), // income = green
-    ...Object.keys(expenseCategories).map(() => '#ef4444') // expense = red
-  ];
-
-  const innerLabels = ['Income', 'Expense'];
-  const innerData = [totalIncome, totalExpense];
-  const innerColors = ['#10b981', '#ef4444'];
-
+  // 🍩 Nested Pie Chart Data
   const pieData = {
-    labels: outerLabels,
+    labels: [
+      ...Object.keys(incomeCategories).map(cat => `Income: ${cat}`),
+      ...Object.keys(expenseCategories).map(cat => `Expense: ${cat}`)
+    ],
     datasets: [
       {
-        label: 'Category Breakdown',
-        data: outerData,
-        backgroundColor: outerColors,
+        // Inner ring: Income vs Expense
+        label: 'Total Breakdown',
+        data: [totalIncome, totalExpense],
+        backgroundColor: ['#10b981', '#ef4444'],
         borderWidth: 1,
-        hoverOffset: 10
+        weight: 1,
       },
       {
-        label: 'Income vs Expense',
-        data: innerData,
-        backgroundColor: innerColors,
+        // Outer ring: Categories
+        label: 'Categories',
+        data: [
+          ...Object.values(incomeCategories),
+          ...Object.values(expenseCategories),
+        ],
+        backgroundColor: [
+          ...Object.keys(incomeCategories).map(() => '#34d399'),
+          ...Object.keys(expenseCategories).map(() => '#f87171'),
+        ],
         borderWidth: 1,
-        hoverOffset: 10
-      }
-    ]
+        weight: 2,
+      },
+    ],
   };
 
   const pieOptions = {
     responsive: true,
-    maintainAspectRatio: false,
+    cutout: '50%',
     plugins: {
       legend: {
         position: 'bottom',
         labels: {
           color: 'white',
-          font: {
-            size: 14,
-          },
+          font: { size: 14 },
           usePointStyle: true,
           boxWidth: 10,
         },
       },
       tooltip: {
+        callbacks: {
+          label: function (context) {
+            const value = context.parsed;
+            return `${context.label}: R${value.toLocaleString()}`;
+          },
+        },
         titleColor: 'white',
         bodyColor: 'white',
         backgroundColor: '#1f2937',
-        callbacks: {
-          label: (ctx) => `${ctx.label}: R${ctx.raw.toLocaleString()}`
-        }
+        titleFont: { size: 16 },
+        bodyFont: { size: 14 },
       },
     },
   };
 
-  // 📈 Line chart: Prepare cumulative income, expense & balance
+  // 📈 Line Chart Data
   const dates = [...new Set(transactions.map(t => new Date(t.date).toISOString().split('T')[0]))].sort();
 
   const incomeData = dates.map(date =>
@@ -117,11 +121,7 @@ function TransactionChart({ transactions }) {
       .reduce((sum, t) => sum + parseFloat(t.amount || 0), 0)
   );
 
-  let cumulativeBalance = 0;
-  const balanceData = incomeData.map((inc, idx) => {
-    cumulativeBalance += inc - expenseData[idx];
-    return cumulativeBalance;
-  });
+  const balanceData = incomeData.map((inc, idx) => inc - expenseData[idx]);
 
   const lineData = {
     labels: dates,
@@ -146,7 +146,7 @@ function TransactionChart({ transactions }) {
         label: 'Balance',
         data: balanceData,
         fill: false,
-        borderColor: '#3b82f6', // blue
+        borderColor: '#3b82f6',
         tension: 0.3,
         pointBackgroundColor: '#3b82f6',
       },
@@ -164,32 +164,24 @@ function TransactionChart({ transactions }) {
     },
     scales: {
       x: {
-        ticks: {
-          color: 'white',
-        },
-        grid: {
-          color: '#374151',
-        },
+        ticks: { color: 'white' },
+        grid: { color: '#374151' },
       },
       y: {
-        ticks: {
-          color: 'white',
-        },
-        grid: {
-          color: '#374151',
-        },
+        ticks: { color: 'white' },
+        grid: { color: '#374151' },
       },
     },
   };
 
   return (
     <div className="flex flex-col lg:flex-row gap-10 justify-center items-start">
-      {/* Pie Chart Section */}
+      {/* Pie Chart */}
       <div className="w-full max-w-[500px] h-[400px]">
         <Pie data={pieData} options={pieOptions} />
       </div>
 
-      {/* Line Chart Section */}
+      {/* Line Chart */}
       <div className="w-full max-w-[800px] h-[400px]">
         <Line data={lineData} options={lineOptions} />
       </div>
