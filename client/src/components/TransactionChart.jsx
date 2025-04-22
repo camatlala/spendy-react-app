@@ -111,10 +111,13 @@ function TransactionChart({ transactions }) {
       .reduce((sum, t) => sum + parseFloat(t.amount || 0), 0)
   );
 
-  const balanceData = incomeData.map((inc, idx) => {
-    const prevBalance = idx > 0 ? balanceData[idx - 1] : 0;
-    return prevBalance + inc - expenseData[idx];
-  });
+  const balanceData = [];
+    for (let i = 0; i < dates.length; i++) {
+      const income = incomeData[i] || 0;
+      const expense = expenseData[i] || 0;
+      const prev = i === 0 ? 0 : balanceData[i - 1];
+  balanceData[i] = prev + income - expense;
+}
 
   const lineData = {
     labels: dates,
