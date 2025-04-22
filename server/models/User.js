@@ -1,9 +1,13 @@
-import mongoose from "mongoose";
+import mongoose from 'mongoose';
 
-const UserSchema = new mongoose.Schema({
+const userSchema = new mongoose.Schema({
     name: String,
     email: String,
-    password: String
+    password: String,
+    monthStartDay: {
+        type: Number,
+        default: 1  // Default to the 1st of the month if the user hasn't set it
+    }
 });
 
-export default mongoose.model("User", UserSchema);
+export default mongoose.model('User', userSchema);

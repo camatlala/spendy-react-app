@@ -8,6 +8,7 @@ import axios from 'axios';
 export default function Dashboard() {
   const [transactions, setTransactions] = useState([]);
   const [editingTransaction, setEditingTransaction] = useState(null);
+  const [monthIndex, setMonthIndex] = useState(0); // ✅ moved here
   const userName = localStorage.getItem('userName');
   const userId = localStorage.getItem('userId');
 
@@ -16,6 +17,21 @@ export default function Dashboard() {
       .then(res => setTransactions(res.data))
       .catch(err => console.error("Error fetching transactions:", err));
   };
+
+  const fetchMonthlyTransactions = async () => {
+    try {
+      const res = await axios.get(`https://spendy-baot.onrender.com/api/transactions/month/filter`, {
+        params: { userId, monthIndex },
+      });
+      setTransactions(res.data);
+    } catch (err) {
+      console.error("Error fetching monthly transactions:", err);
+    }
+  };
+
+  useEffect(() => {
+    fetchMonthlyTransactions();
+  }, [monthIndex]);
 
   useEffect(() => {
     fetchTransactions();
@@ -30,6 +46,7 @@ export default function Dashboard() {
         </h1>
 
         <div className="grid gap-6 lg:grid-cols-3 auto-rows-min">
+          {/* 💰 Balance */}
           <div className="col-span-3 flex flex-col md:flex-row justify-between gap-4">
             <div className="w-full bg-gray-800 rounded-3xl text-white text-center py-10 px-6">
               <div className="text-2xl font-medium">Current Balance is</div>
@@ -47,7 +64,7 @@ export default function Dashboard() {
             </div>
           </div>
 
-          {/* Add Transaction Form (left) */}
+          {/* ➕ Add Transaction */}
           <div className="bg-gray-800 rounded-3xl text-white p-6 row-span-1">
             <AddTransactionForm
               onSuccess={fetchTransactions}
@@ -55,32 +72,44 @@ export default function Dashboard() {
               onCancelEdit={() => setEditingTransaction(null)}
             />
           </div>
-          
-          {/* Recent Transactions */}
-          <div className="bg-gray-800 rounded-3xl text-white p-6 col-span-2">
-            
-          <TransactionList
-            transactions={transactions}
-            onEdit={(tx) => setEditingTransaction(tx)}
-          />
 
-          <br />
-          <div className="flex justify-between items-center mb-4">
-          <button
-            onClick={fetchTransactions}
-            className="text-sm px-4 py-1.5 bg-indigo-600 hover:bg-indigo-500 rounded-md text-white transition cursor-pointer"
-          >
-      Refresh
-    </button>
-  </div>
-  
-        </div>
-        
+          {/* 📄 Recent Transactions */}
+          <div className="bg-gray-800 rounded-3xl text-white p-6 col-span-2">
+            <TransactionList
+              transactions={transactions}
+              onEdit={(tx) => setEditingTransaction(tx)}
+            />
+            <br />
+            <div className="flex justify-between items-center mb-4">
+              <button
+                onClick={fetchTransactions}
+                className="text-sm px-4 py-1.5 bg-indigo-600 hover:bg-indigo-500 rounded-md text-white transition cursor-pointer"
+              >
+                Refresh
+              </button>
+            </div>
+          </div>
+
+          {/* 📊 Chart */}
           <div className="bg-gray-800 rounded-3xl text-white p-6 col-span-3">
             <h2 className="text-xl font-semibold mb-4">Spending Overview</h2>
-            <div>
-              <p><TransactionChart transactions={transactions}/></p>
+
+            <div className="mb-6">
+              <label className="mr-2 text-white">Select Month:</label>
+              <select
+                className="p-2 rounded bg-gray-800 text-white"
+                value={monthIndex}
+                onChange={(e) => setMonthIndex(Number(e.target.value))}
+              >
+                {[...Array(12)].map((_, i) => (
+                  <option key={i} value={i}>
+                    {i === 0 ? 'Current Month' : `${i} month${i > 1 ? 's' : ''} ago`}
+                  </option>
+                ))}
+              </select>
             </div>
+
+            <TransactionChart transactions={transactions} />
           </div>
         </div>
       </div>

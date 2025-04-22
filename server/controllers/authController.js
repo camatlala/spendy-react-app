@@ -29,3 +29,17 @@ export const login = async (req, res) => {
     res.status(500).json({ status: "Error", error });
 }
 };
+
+export async function updateUserSettings(req, res) {
+    try {
+        const { userId, monthStartDay } = req.body;
+            if (!userId || !monthStartDay) {
+        return res.status(400).json({ success: false, message: 'Missing fields' });
+            }
+        await User.findByIdAndUpdate(userId, { monthStartDay });
+        res.json({ success: true, message: 'Settings updated' });
+    } catch (error) {
+        console.error('Error updating user settings:', error);
+        res.status(500).json({ success: false, message: 'Server error' });
+    }
+}

@@ -26,25 +26,54 @@ ChartJS.register(
 );
 
 function TransactionChart({ transactions }) {
-  // 🥧 Pie chart: separate totals for income and expenses
-  let incomeTotal = 0;
-  let expenseTotal = 0;
+  // 🥧 Pie chart: Prepare data
+  const incomeCategories = {};
+  const expenseCategories = {};
+  let totalIncome = 0;
+  let totalExpense = 0;
 
-  transactions.forEach(t => {
+  transactions.forEach((t) => {
+    const category = t.category_name || t.category || 'Other';
     const amount = parseFloat(t.amount || 0);
-    if (t.type === 'income') incomeTotal += amount;
-    if (t.type === 'expense') expenseTotal += amount;
+
+    if (t.type === 'income') {
+      totalIncome += amount;
+      incomeCategories[category] = (incomeCategories[category] || 0) + amount;
+    } else {
+      totalExpense += amount;
+      expenseCategories[category] = (expenseCategories[category] || 0) + amount;
+    }
   });
 
+  const outerLabels = [...Object.keys(incomeCategories), ...Object.keys(expenseCategories)];
+  const outerData = [...Object.values(incomeCategories), ...Object.values(expenseCategories)];
+  const outerColors = [
+    ...Object.keys(incomeCategories).map(() => '#10b981'), // income = green
+    ...Object.keys(expenseCategories).map(() => '#ef4444') // expense = red
+  ];
+
+  const innerLabels = ['Income', 'Expense'];
+  const innerData = [totalIncome, totalExpense];
+  const innerColors = ['#10b981', '#ef4444'];
+
   const pieData = {
-    labels: ['Income', 'Expenses'],
+    labels: outerLabels,
     datasets: [
       {
-        data: [incomeTotal, expenseTotal],
-        backgroundColor: ['#10b981', '#ef4444'],
+        label: 'Category Breakdown',
+        data: outerData,
+        backgroundColor: outerColors,
         borderWidth: 1,
+        hoverOffset: 10
       },
-    ],
+      {
+        label: 'Income vs Expense',
+        data: innerData,
+        backgroundColor: innerColors,
+        borderWidth: 1,
+        hoverOffset: 10
+      }
+    ]
   };
 
   const pieOptions = {
@@ -55,7 +84,9 @@ function TransactionChart({ transactions }) {
         position: 'bottom',
         labels: {
           color: 'white',
-          font: { size: 14 },
+          font: {
+            size: 14,
+          },
           usePointStyle: true,
           boxWidth: 10,
         },
@@ -64,13 +95,14 @@ function TransactionChart({ transactions }) {
         titleColor: 'white',
         bodyColor: 'white',
         backgroundColor: '#1f2937',
-        titleFont: { size: 16 },
-        bodyFont: { size: 14 },
+        callbacks: {
+          label: (ctx) => `${ctx.label}: R${ctx.raw.toLocaleString()}`
+        }
       },
     },
   };
 
-  // 📈 Line chart: Prepare income, expense & balance per date
+  // 📈 Line chart: Prepare cumulative income, expense & balance
   const dates = [...new Set(transactions.map(t => new Date(t.date).toISOString().split('T')[0]))].sort();
 
   const incomeData = dates.map(date =>
@@ -85,7 +117,11 @@ function TransactionChart({ transactions }) {
       .reduce((sum, t) => sum + parseFloat(t.amount || 0), 0)
   );
 
-  const balanceData = incomeData.map((inc, idx) => inc - expenseData[idx]);
+  let cumulativeBalance = 0;
+  const balanceData = incomeData.map((inc, idx) => {
+    cumulativeBalance += inc - expenseData[idx];
+    return cumulativeBalance;
+  });
 
   const lineData = {
     labels: dates,
