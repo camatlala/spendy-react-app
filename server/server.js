@@ -12,7 +12,8 @@ const app = express();
 const PORT = process.env.PORT || 8080;
 
 app.use(cors({
-  origin: "https://spendy-react.netlify.app",
+  origin: 'https://spendy-react.netlify.app',
+  credentials: true,
 }));
 
 app.use(express.json());
