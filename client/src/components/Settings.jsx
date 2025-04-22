@@ -68,7 +68,7 @@ const showToast = (msg) => {
 return (
     <div className="bg-gray-900 min-h-screen text-white">
         <NavBar />
-
+        <br />
     <div className="px-6 py-10 lg:px-20 relative">
         <h1 className="text-3xl font-semibold mb-10 text-white">
             Settings for {userName}
