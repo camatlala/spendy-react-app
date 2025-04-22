@@ -47,7 +47,7 @@ const SignUpForm = () => {
             <img
                 src={assets.Spendy} 
                 alt="Spendy" 
-                className="mmx-auto h-60 w-auto bg-white justify-center" />
+                className="mx-auto h-60 w-auto bg-white" />
             <h2 className="mt-6 text-3xl font-bold tracking-tight text-gray-900">
             Sign up for your account
             </h2>
