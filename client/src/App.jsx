@@ -5,7 +5,7 @@ import SignUpForm from './components/SignUpForm'
 import Dashboard from './components/Dashboard'
 import HomePage from './components/HomePage'
 import StartPage from './components/StartPage'
-import Settings from './pages/Settings';
+import Settings from './components/Settings';
 
 function App() {
   return (
