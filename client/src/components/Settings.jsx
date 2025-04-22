@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import NavBar from '../UI Elements/NavBar';
+import NavBar from './UI Elements/NavBar';
 import axios from 'axios';
 
 export default function Settings() {
