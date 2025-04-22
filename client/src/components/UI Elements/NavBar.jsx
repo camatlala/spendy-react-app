@@ -15,7 +15,7 @@ const NavBar = () => {
           to="/dashboard"
           className={`flex items-center justify-evenly w-60 h-15 rounded-full transition cursor-pointer ${
             location.pathname === '/dashboard'
-              ? 'bg-amber-900 text-gray-900 ring-indigo-200'
+              ? 'bg-white text-gray-900 ring-indigo-200'
               : 'bg-gray-800 hover:bg-white text-white hover:text-gray-700'
           }`}
         >
@@ -27,7 +27,7 @@ const NavBar = () => {
           to="/settings"
           className={`flex items-center justify-evenly w-60 h-15 rounded-full transition cursor-pointer ${
             location.pathname === '/settings'
-              ? 'bg-amber-900 text-gray-900 ring-indigo-200'
+              ? 'bg-white text-gray-900 ring-indigo-200'
               : 'bg-gray-800 hover:bg-white text-white hover:text-gray-700'
           }`}
         >

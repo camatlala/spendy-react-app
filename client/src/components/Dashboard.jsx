@@ -5,15 +5,23 @@ import TransactionList from './TransactionList';
 import TransactionChart from './TransactionChart';
 import axios from 'axios';
 
+// Helper to get how many months ago a transaction occurred
+function getMonthDiff(dateString) {
+  const now = new Date();
+  const txDate = new Date(dateString);
+  return (now.getFullYear() - txDate.getFullYear()) * 12 + (now.getMonth() - txDate.getMonth());
+}
+
 export default function Dashboard() {
   const [transactions, setTransactions] = useState([]);
   const [editingTransaction, setEditingTransaction] = useState(null);
-  const [monthIndex, setMonthIndex] = useState(0); // ✅ moved here
+  const [monthIndex, setMonthIndex] = useState(0);
   const userName = localStorage.getItem('userName');
   const userId = localStorage.getItem('userId');
 
   const fetchTransactions = () => {
-    axios.get(`https://spendy-baot.onrender.com/api/transactions/${userId}`)
+    axios
+      .get(`https://spendy-baot.onrender.com/api/transactions/${userId}`)
       .then(res => setTransactions(res.data))
       .catch(err => console.error("Error fetching transactions:", err));
   };
@@ -36,6 +44,18 @@ export default function Dashboard() {
   useEffect(() => {
     fetchTransactions();
   }, []);
+
+  // Dynamically return which months (up to 11 ago) have transactions
+  const getAvailableMonthIndices = () => {
+    const indices = new Set();
+    transactions.forEach(tx => {
+      const diff = getMonthDiff(tx.date);
+      if (diff >= 0 && diff <= 11) {
+        indices.add(diff);
+      }
+    });
+    return [...indices].sort((a, b) => a - b);
+  };
 
   return (
     <div className="bg-gray-900 min-h-screen text-gray-800">
@@ -101,7 +121,7 @@ export default function Dashboard() {
                 value={monthIndex}
                 onChange={(e) => setMonthIndex(Number(e.target.value))}
               >
-                {[...Array(12)].map((_, i) => (
+                {getAvailableMonthIndices().map(i => (
                   <option key={i} value={i}>
                     {i === 0 ? 'Current Month' : `${i} month${i > 1 ? 's' : ''} ago`}
                   </option>
@@ -117,6 +137,7 @@ export default function Dashboard() {
   );
 }
 
+// Utility to get total income or expenses
 function getTotal(transactions, type) {
   return transactions
     .filter(t => t.type === type)
