@@ -1,36 +1,34 @@
 import React from 'react';
-import { Pie, Line } from 'react-chartjs-2';
+import { Doughnut, Chart as ChartComponent } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
   ArcElement,
+  BarElement,
+  LineElement,
+  TimeScale,
+  LinearScale,
+  CategoryScale,
   Tooltip,
   Legend,
-  LineController,
-  LineElement,
-  PointElement,
-  CategoryScale,
-  LinearScale,
   Title,
+  PointElement
 } from 'chart.js';
+import 'chartjs-adapter-date-fns'; // for time scale
 
 ChartJS.register(
   ArcElement,
+  BarElement,
+  LineElement,
+  TimeScale,
+  LinearScale,
+  CategoryScale,
   Tooltip,
   Legend,
-  LineController,
-  LineElement,
-  PointElement,
-  CategoryScale,
-  LinearScale,
-  Title
+  Title,
+  PointElement
 );
 
 function TransactionChart({ transactions }) {
-  if (!Array.isArray(transactions) || transactions.length === 0) {
-    return <div className="text-white text-center w-full">No data to display</div>;
-  }
-
-  // --- 🧮 Categorize transactions ---
   const incomeCategories = {};
   const expenseCategories = {};
   let totalIncome = 0;
@@ -39,7 +37,6 @@ function TransactionChart({ transactions }) {
   transactions.forEach((t) => {
     const category = t.category_name || t.category || 'Other';
     const amount = parseFloat(t.amount || 0);
-
     if (t.type === 'income') {
       totalIncome += amount;
       incomeCategories[category] = (incomeCategories[category] || 0) + amount;
@@ -49,30 +46,29 @@ function TransactionChart({ transactions }) {
     }
   });
 
-  // --- 🥧 Pie Chart (Nested Doughnut) ---
+  const incomeColor = '#10b981';
+  const expenseColor = '#ef4444';
+
   const pieData = {
     labels: ['Income', 'Expense'],
     datasets: [
       {
-        // Inner ring – Total Income vs Expense
-        label: 'Totals',
         data: [totalIncome, totalExpense],
-        backgroundColor: ['#10b981', '#ef4444'],
+        backgroundColor: [incomeColor, expenseColor],
         borderWidth: 1,
-        weight: 1,
       },
       {
-        // Outer ring – Category Breakdown
-        label: 'Category Breakdown',
-        data: [...Object.values(incomeCategories), ...Object.values(expenseCategories)],
+        data: [
+          ...Object.values(incomeCategories),
+          ...Object.values(expenseCategories)
+        ],
         backgroundColor: [
-          ...Object.keys(incomeCategories).map(() => '#34d399'),
-          ...Object.keys(expenseCategories).map(() => '#f87171'),
+          ...Object.keys(incomeCategories).map((_, i) => `hsl(150, 100%, ${60 - i * 3}%)`),
+          ...Object.keys(expenseCategories).map((_, i) => `hsl(0, 100%, ${60 - i * 3}%)`)
         ],
         borderWidth: 1,
-        weight: 0.8,
-      },
-    ],
+      }
+    ]
   };
 
   const pieOptions = {
@@ -83,113 +79,119 @@ function TransactionChart({ transactions }) {
         position: 'bottom',
         labels: {
           color: 'white',
-          usePointStyle: true,
-          boxWidth: 10,
-          font: { size: 14 },
-        },
+          font: { size: 14 }
+        }
       },
       tooltip: {
         callbacks: {
-          label: (context) => {
-            const label = context.label || '';
-            const value = context.raw || 0;
-            return `${label}: R${value.toLocaleString()}`;
-          },
-        },
-      },
-    },
+          label: context => {
+            return `${context.label}: R${(context.raw || 0).toLocaleString()}`;
+          }
+        }
+      }
+    }
   };
 
-  // --- 📈 Line Chart Data ---
-  const dates = [...new Set(transactions.map(t => new Date(t.date).toISOString().split('T')[0]))].sort();
+  // --- Time Combo Chart Prep ---
+  const grouped = {};
 
-  const incomeData = dates.map(date =>
-    transactions
-      .filter(t => t.type === 'income' && new Date(t.date).toISOString().split('T')[0] === date)
-      .reduce((sum, t) => sum + parseFloat(t.amount || 0), 0)
-  );
+  transactions.forEach((t) => {
+    const date = new Date(t.date).toISOString().split('T')[0];
+    if (!grouped[date]) grouped[date] = { income: 0, expense: 0 };
+    if (t.type === 'income') grouped[date].income += parseFloat(t.amount || 0);
+    else grouped[date].expense += parseFloat(t.amount || 0);
+  });
 
-  const expenseData = dates.map(date =>
-    transactions
-      .filter(t => t.type === 'expense' && new Date(t.date).toISOString().split('T')[0] === date)
-      .reduce((sum, t) => sum + parseFloat(t.amount || 0), 0)
-  );
+  const sortedDates = Object.keys(grouped).sort();
+  let runningBalance = 0;
+  const incomeData = [], expenseData = [], balanceData = [], timeLabels = [];
 
-  const balanceData = [];
-  for (let i = 0; i < dates.length; i++) {
-    const income = incomeData[i] || 0;
-    const expense = expenseData[i] || 0;
-    const prev = i === 0 ? 0 : balanceData[i - 1];
-    balanceData[i] = prev + income - expense;
-  }
+  sortedDates.forEach(date => {
+    const income = grouped[date].income || 0;
+    const expense = grouped[date].expense || 0;
+    runningBalance += income - expense;
 
-  const lineData = {
-    labels: dates,
+    incomeData.push({ x: date, y: income });
+    expenseData.push({ x: date, y: expense });
+    balanceData.push({ x: date, y: runningBalance });
+    timeLabels.push(date);
+  });
+
+  const comboData = {
+    labels: timeLabels,
     datasets: [
       {
+        type: 'bar',
         label: 'Income',
-        data: incomeData,
-        fill: false,
-        borderColor: '#10b981',
-        tension: 0.3,
-        pointBackgroundColor: '#10b981',
+        backgroundColor: incomeColor,
+        borderColor: incomeColor,
+        data: incomeData
       },
       {
+        type: 'bar',
         label: 'Expense',
-        data: expenseData,
-        fill: false,
-        borderColor: '#ef4444',
-        tension: 0.3,
-        pointBackgroundColor: '#ef4444',
+        backgroundColor: expenseColor,
+        borderColor: expenseColor,
+        data: expenseData
       },
       {
+        type: 'line',
         label: 'Balance',
-        data: balanceData,
-        fill: false,
         borderColor: '#3b82f6',
-        tension: 0.3,
-        pointBackgroundColor: '#3b82f6',
-      },
-    ],
+        fill: false,
+        data: balanceData
+      }
+    ]
   };
 
-  const lineOptions = {
+  const comboOptions = {
     responsive: true,
     plugins: {
+      title: {
+        display: true,
+        text: 'Income vs Expense vs Balance Over Time',
+        color: 'white'
+      },
       legend: {
         labels: {
-          color: 'white',
-        },
-      },
+          color: 'white'
+        }
+      }
     },
     scales: {
       x: {
+        type: 'time',
+        time: {
+          unit: 'day'
+        },
         ticks: {
-          color: 'white',
+          color: 'white'
         },
         grid: {
-          color: '#374151',
-        },
+          color: '#374151'
+        }
       },
       y: {
         ticks: {
-          color: 'white',
+          color: 'white'
         },
         grid: {
-          color: '#374151',
-        },
-      },
-    },
+          color: '#374151'
+        }
+      }
+    }
   };
 
-  // --- JSX ---
   return (
     <div className="flex flex-col lg:flex-row gap-10 justify-center items-start">
+      {/* Pie Chart */}
       <div className="w-full max-w-[500px] h-[400px]">
-        <Pie data={pieData} options={pieOptions} />
+        <Doughnut data={pieData} options={pieOptions} />
       </div>
+
+      {/* Combo Time Chart */}
       <div className="w-full max-w-[800px] h-[400px]">
-        <Line data={lineData} options={lineOptions} />
+        <ChartComponent type="bar" data={comboData} options={comboOptions} />
       </div>
     </div>
   );
