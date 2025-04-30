@@ -1,96 +1,61 @@
-import React from 'react';
-import { Pie } from 'react-chartjs-2';
-import {
-  Chart as ChartJS,
-  ArcElement,
-  Tooltip,
-  Legend,
-} from 'chart.js';
+import * as React from 'react';
+import { PieChart } from '@mui/x-charts/PieChart';
+import { Box, Typography, IconButton, Stack } from '@mui/material';
+import UndoOutlinedIcon from '@mui/icons-material/UndoOutlined';
 
-ChartJS.register(ArcElement, Tooltip, Legend);
+export default function TransactionDonutChart({ transactions = [] }) {
+  const [itemData, setItemData] = React.useState(null);
 
-export default function TransactionChart({ transactions = [] }) {
-  // Step 1: Process data
-  const incomeCategories = {};
-  const expenseCategories = {};
-  let totalIncome = 0;
-  let totalExpense = 0;
+  const incomeCategories = [];
+  const expenseCategories = [];
 
-  transactions.forEach(t => {
+  transactions.forEach((t) => {
     const category = t.category_name || t.category || 'Other';
     const amount = parseFloat(t.amount || 0);
 
-    if (t.type === 'income') {
-      totalIncome += amount;
-      incomeCategories[category] = (incomeCategories[category] || 0) + amount;
-    } else if (t.type === 'expense') {
-      totalExpense += amount;
-      expenseCategories[category] = (expenseCategories[category] || 0) + amount;
+    const targetArray = t.type === 'income' ? incomeCategories : expenseCategories;
+    const existing = targetArray.find(c => c.label === category);
+    if (existing) {
+      existing.value += amount;
+    } else {
+      targetArray.push({ label: category, value: amount });
     }
   });
 
-  // Step 2: Prepare pie chart data
-  const pieData = {
-    labels: [
-      ...Object.keys(incomeCategories),
-      ...Object.keys(expenseCategories),
-      'Income',
-      'Expense'
-    ],
-    datasets: [
-      {
-        // INNER ring
-        label: 'Total Income vs Expense',
-        data: [totalIncome, totalExpense],
-        backgroundColor: ['#10b981', '#ef4444'],
-        borderWidth: 1,
-      },
-      {
-        // OUTER ring
-        label: 'Category Breakdown',
-        data: [
-          ...Object.values(incomeCategories),
-          ...Object.values(expenseCategories)
-        ],
-        backgroundColor: [
-          ...Object.keys(incomeCategories).map(() => '#34d399'), // income green shades
-          ...Object.keys(expenseCategories).map(() => '#f87171'), // expense red shades
-        ],
-        borderWidth: 1,
-      },
-    ],
-  };
-
-  // Step 3: Customize the chart options
-  const pieOptions = {
-    responsive: true,
-    cutout: '50%',
-    plugins: {
-      legend: {
-        position: 'bottom',
-        labels: {
-          filter: (legendItem) => legendItem.datasetIndex === 1, // Only show category legend
-          color: 'white',
-          usePointStyle: true,
-          boxWidth: 10,
-          font: { size: 14 },
-        },
-      },
-      tooltip: {
-        callbacks: {
-          label: (context) => {
-            const label = context.label || '';
-            const value = context.raw || 0;
-            return `${label}: R${value.toLocaleString()}`;
-          },
-        },
-      },
+  const series = [
+    {
+      innerRadius: 0,
+      outerRadius: 80,
+      id: 'income-series',
+      data: incomeCategories,
     },
-  };
+    {
+      innerRadius: 100,
+      outerRadius: 120,
+      id: 'expense-series',
+      data: expenseCategories,
+    },
+  ];
 
   return (
-    <div className="w-full max-w-[500px] h-[400px] mx-auto">
-      <Pie data={pieData} options={pieOptions} />
-    </div>
+    <Stack direction="column" spacing={2} sx={{ width: '100%', alignItems: 'center' }}>
+      <PieChart
+        series={series}
+        width={400}
+        height={400}
+        onItemClick={(event, d) => setItemData(d)}
+      />
+      {itemData && (
+        <Box>
+          <Typography variant="body1">
+            <strong>{itemData.seriesId === 'income-series' ? 'Income' : 'Expense'}:</strong>{' '}
+            {itemData.label} - R{itemData.value.toLocaleString()}
+          </Typography>
+          <IconButton onClick={() => setItemData(null)}>
+            <UndoOutlinedIcon fontSize="small" />
+          </IconButton>
+        </Box>
+      )}
+    </Stack>
   );
 }
