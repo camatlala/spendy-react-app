@@ -1,76 +1,67 @@
 import React from 'react';
-import { Doughnut, Chart as ChartComponent } from 'react-chartjs-2';
+import { Pie } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
   ArcElement,
-  BarElement,
-  LineElement,
-  TimeScale,
-  LinearScale,
-  CategoryScale,
   Tooltip,
   Legend,
-  Title,
-  PointElement
 } from 'chart.js';
-import 'chartjs-adapter-date-fns'; // for time scale
 
-ChartJS.register(
-  ArcElement,
-  BarElement,
-  LineElement,
-  TimeScale,
-  LinearScale,
-  CategoryScale,
-  Tooltip,
-  Legend,
-  Title,
-  PointElement
-);
+ChartJS.register(ArcElement, Tooltip, Legend);
 
-function TransactionChart({ transactions }) {
+export default function TransactionChart({ transactions = [] }) {
+  // Step 1: Process data
   const incomeCategories = {};
   const expenseCategories = {};
   let totalIncome = 0;
   let totalExpense = 0;
 
-  transactions.forEach((t) => {
+  transactions.forEach(t => {
     const category = t.category_name || t.category || 'Other';
     const amount = parseFloat(t.amount || 0);
+
     if (t.type === 'income') {
       totalIncome += amount;
       incomeCategories[category] = (incomeCategories[category] || 0) + amount;
-    } else {
+    } else if (t.type === 'expense') {
       totalExpense += amount;
       expenseCategories[category] = (expenseCategories[category] || 0) + amount;
     }
   });
 
-  const incomeColor = '#10b981';
-  const expenseColor = '#ef4444';
-
+  // Step 2: Prepare pie chart data
   const pieData = {
-    labels: ['Income', 'Expense'],
+    labels: [
+      ...Object.keys(incomeCategories),
+      ...Object.keys(expenseCategories),
+      'Income',
+      'Expense'
+    ],
     datasets: [
       {
+        // INNER ring
+        label: 'Total Income vs Expense',
         data: [totalIncome, totalExpense],
-        backgroundColor: [incomeColor, expenseColor],
+        backgroundColor: ['#10b981', '#ef4444'],
         borderWidth: 1,
       },
       {
+        // OUTER ring
+        label: 'Category Breakdown',
         data: [
           ...Object.values(incomeCategories),
           ...Object.values(expenseCategories)
         ],
         backgroundColor: [
-          ...Object.keys(incomeCategories).map((_, i) => `hsl(150, 100%, ${60 - i * 3}%)`),
-          ...Object.keys(expenseCategories).map((_, i) => `hsl(0, 100%, ${60 - i * 3}%)`)
+          ...Object.keys(incomeCategories).map(() => '#34d399'), // income green shades
+          ...Object.keys(expenseCategories).map(() => '#f87171'), // expense red shades
         ],
         borderWidth: 1,
-      }
-    ]
+      },
+    ],
   };
 
+  // Step 3: Customize the chart options
   const pieOptions = {
     responsive: true,
     cutout: '50%',
@@ -78,123 +69,28 @@ function TransactionChart({ transactions }) {
       legend: {
         position: 'bottom',
         labels: {
+          filter: (legendItem) => legendItem.datasetIndex === 1, // Only show category legend
           color: 'white',
-          font: { size: 14 }
-        }
+          usePointStyle: true,
+          boxWidth: 10,
+          font: { size: 14 },
+        },
       },
       tooltip: {
         callbacks: {
-          label: context => {
-            return `${context.label}: R${(context.raw || 0).toLocaleString()}`;
-          }
-        }
-      }
-    }
-  };
-
-  // --- Time Combo Chart Prep ---
-  const grouped = {};
-
-  transactions.forEach((t) => {
-    const date = new Date(t.date).toISOString().split('T')[0];
-    if (!grouped[date]) grouped[date] = { income: 0, expense: 0 };
-    if (t.type === 'income') grouped[date].income += parseFloat(t.amount || 0);
-    else grouped[date].expense += parseFloat(t.amount || 0);
-  });
-
-  const sortedDates = Object.keys(grouped).sort();
-  let runningBalance = 0;
-  const incomeData = [], expenseData = [], balanceData = [], timeLabels = [];
-
-  sortedDates.forEach(date => {
-    const income = grouped[date].income || 0;
-    const expense = grouped[date].expense || 0;
-    runningBalance += income - expense;
-
-    incomeData.push({ x: date, y: income });
-    expenseData.push({ x: date, y: expense });
-    balanceData.push({ x: date, y: runningBalance });
-    timeLabels.push(date);
-  });
-
-  const comboData = {
-    labels: timeLabels,
-    datasets: [
-      {
-        type: 'bar',
-        label: 'Income',
-        backgroundColor: incomeColor,
-        borderColor: incomeColor,
-        data: incomeData
+          label: (context) => {
+            const label = context.label || '';
+            const value = context.raw || 0;
+            return `${label}: R${value.toLocaleString()}`;
+          },
+        },
       },
-      {
-        type: 'bar',
-        label: 'Expense',
-        backgroundColor: expenseColor,
-        borderColor: expenseColor,
-        data: expenseData
-      },
-      {
-        type: 'line',
-        label: 'Balance',
-        borderColor: '#3b82f6',
-        fill: false,
-        data: balanceData
-      }
-    ]
-  };
-
-  const comboOptions = {
-    responsive: true,
-    plugins: {
-      title: {
-        display: true,
-        text: 'Income vs Expense vs Balance Over Time',
-        color: 'white'
-      },
-      legend: {
-        labels: {
-          color: 'white'
-        }
-      }
     },
-    scales: {
-      x: {
-        type: 'time',
-        time: {
-          unit: 'day'
-        },
-        ticks: {
-          color: 'white'
-        },
-        grid: {
-          color: '#374151'
-        }
-      },
-      y: {
-        ticks: {
-          color: 'white'
-        },
-        grid: {
-          color: '#374151'
-        }
-      }
-    }
   };
 
   return (
-    <div className="flex flex-col lg:flex-row gap-10 justify-center items-start">
-      {/* Pie Chart */}
-      <div className="w-full max-w-[500px] h-[400px]">
-        <Doughnut data={pieData} options={pieOptions} />
-      </div>
-
-      {/* Combo Time Chart */}
-      <div className="w-full max-w-[800px] h-[400px]">
-        <ChartComponent type="bar" data={comboData} options={comboOptions} />
-      </div>
+    <div className="w-full max-w-[500px] h-[400px] mx-auto">
+      <Pie data={pieData} options={pieOptions} />
     </div>
   );
 }
-
-export default TransactionChart;
